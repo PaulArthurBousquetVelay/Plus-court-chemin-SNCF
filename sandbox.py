@@ -8,7 +8,7 @@ class Application:
         self.master.geometry("800x650")
         self.master.title("SNGF CONNEKT")
 
-        self.stations = {
+        self.gares = {
             "Paris Gare du Nord": (48.8809, 2.3553),
             "Paris Gare de Lyon": (48.8448, 2.3741),
             "Lyon Part-Dieu": (45.7605, 4.8596),
@@ -25,20 +25,20 @@ class Application:
         self.map_widget.set_position(47.1221, 2.3200)  # Center of France
         self.map_widget.set_zoom(6)
 
-        for station, coords in self.stations.items():
-            self.map_widget.set_marker(coords[0], coords[1], text=station, command=self.on_marker_click)
+        for gare, coords in self.gares.items():
+            self.map_widget.set_marker(coords[0], coords[1], text=gare, command=self.on_marker_click)
 
-        start_label = tkinter.Label(self.master, text="Départ:")
-        start_label.place(x=10, y=10)
-        self.start_var = tkinter.StringVar(self.master)
-        start_entry = tkinter.Entry(self.master, textvariable=self.start_var, width=30)
-        start_entry.place(x=100, y=10)
+        depart_label = tkinter.Label(self.master, text="Départ:")
+        depart_label.place(x=10, y=10)
+        self.depart_var = tkinter.StringVar(self.master)
+        depart_entry = tkinter.Entry(self.master, textvariable=self.depart_var, width=30)
+        depart_entry.place(x=100, y=10)
 
-        goal_label = tkinter.Label(self.master, text="Arrivée:")
-        goal_label.place(x=400, y=10)
-        self.goal_var = tkinter.StringVar(self.master)
-        goal_entry = tkinter.Entry(self.master, textvariable=self.goal_var, width=30)
-        goal_entry.place(x=490, y=10)
+        arrivee_label = tkinter.Label(self.master, text="Arrivée:")
+        arrivee_label.place(x=400, y=10)
+        self.arrivee_var = tkinter.StringVar(self.master)
+        arrivee_entry = tkinter.Entry(self.master, textvariable=self.arrivee_var, width=30)
+        arrivee_entry.place(x=490, y=10)
 
         calculate_button = tkinter.Button(self.master, text="Calculer", command=self.on_calculate_path)
         calculate_button.place(x=700, y=5)
@@ -57,18 +57,18 @@ class Application:
     def on_marker_click(self, marker):
         print(f"Clicked on {marker.text}")
 
-        if not self.start_var.get():
-            self.start_var.set(marker.text)
-        elif not self.goal_var.get():
-            self.goal_var.set(marker.text)
+        if not self.depart_var.get():
+            self.depart_var.set(marker.text)
+        elif not self.arrivee_var.get():
+            self.arrivee_var.set(marker.text)
         else:
-            self.start_var.set(marker.text)
-            self.goal_var.set("")
+            self.depart_var.set(marker.text)
+            self.arrivee_var.set("")
 
     def on_calculate_path(self):
-        start_station = self.start_var.get()
-        goal_station = self.goal_var.get()
-        print(f"Calculer le trajet entre {start_station} et {goal_station}")
+        depart_gare = self.depart_var.get()
+        arrivee_gare = self.arrivee_var.get()
+        print(f"Calculer le trajet entre {depart_gare} et {arrivee_gare}")
         # ICI SUITE DE L'APPLI genre disjrka et afficher resultats
 
         # Switch to the example widget setup
