@@ -48,11 +48,11 @@ class Application:
         self.map_widget.destroy()
 
         # Example widget setup
-        example_label = tkinter.Label(self.master, text="Résultat")
-        example_label.place(anchor=tkinter.CENTER, relx=0.5, rely=0.1)
+        resultat_label = tkinter.Label(self.master, text="Résultat")
+        resultat_label.place(anchor=tkinter.CENTER, relx=0.5, rely=0.1)
 
-        go_back_button = tkinter.Button(self.master, text="Go back", command=self.create_widgets_home)
-        go_back_button.place(x=700, y=5)
+        retour_button = tkinter.Button(self.master, text="Retour", command=self.create_widgets_home)
+        retour_button.place(x=700, y=5)
 
     def on_marker_click(self, marker):
         print(f"Clicked on {marker.text}")

@@ -1,0 +1,7 @@
+#Traitement de données
+numpy==1.24.2
+pandas==1.5.3
+
+#Affichage / GUI
+customtkinter==5.1.2
+tkintermapview==1.28
