@@ -1,15 +1,15 @@
-#ICI ON TEST DES TRUCS POUR PAS TOUT CASSER
-
-import customtkinter as ctk
 import tkinter as tk
-import tkintermapview
+from tkinter import ttk
+from PIL import ImageTk, Image
+import io
+import folium
+import base64
 
 class Application:
     def __init__(self, master):
         self.master = master
         self.master.geometry("1000x650")
         self.master.title("SNGF CONNEKT")
-
 
         self.gares = {
             "Paris Gare du Nord": (48.8809, 2.3553),
@@ -22,81 +22,73 @@ class Application:
         self.create_widgets_home()
 
     def create_widgets_home(self):
-        self.map_widget = tkintermapview.TkinterMapView(self.master, width=800, height=600, corner_radius=0)
-        self.map_widget.place(relx=0, rely=0.077)
+        self.map_widget = self.create_map()
+        self.map_widget.pack()
 
-        self.map_widget.set_position(47.1221, 2.3200)  # Center of France
-        self.map_widget.set_zoom(6)
-
-        for gare, coords in self.gares.items():
-            self.map_widget.set_marker(coords[0], coords[1], text=gare, command=self.on_marker_click)
-
-        depart_label = ctk.CTkLabel(master=self.master, text="Départ:")
-        depart_label.place(relx=0.01, rely=0.015)
+        depart_label = ttk.Label(master=self.master, text="Départ:")
+        depart_label.place(x=10, y=10)
         self.depart_var = tk.StringVar(master=self.master)
-        depart_entry = ctk.CTkEntry(master=self.master, textvariable=self.depart_var, width=150)
-        depart_entry.place(relx=0.06, rely=0.015)
+        depart_entry = ttk.Entry(master=self.master, textvariable=self.depart_var, width=20)
+        depart_entry.place(x=60, y=10)
 
-        arrivee_label = ctk.CTkLabel(master=self.master, text="Arrivée:")
-        arrivee_label.place(relx=0.35, rely=0.015)
+        arrivee_label = ttk.Label(master=self.master, text="Arrivée:")
+        arrivee_label.place(x=350, y=10)
         self.arrivee_var = tk.StringVar(master=self.master)
-        arrivee_entry = ctk.CTkEntry(master=self.master, textvariable=self.arrivee_var, width=150)
-        arrivee_entry.place(relx=0.4, rely=0.015)
+        arrivee_entry = ttk.Entry(master=self.master, textvariable=self.arrivee_var, width=20)
+        arrivee_entry.place(x=400, y=10)
 
-        calculate_button = ctk.CTkButton(master=self.master, text="Calculer", command=self.on_calculate_path)
-        calculate_button.place(relx=0.65, rely=0.015)
+        calculate_button = ttk.Button(master=self.master, text="Calculer", command=self.on_calculate_path)
+        calculate_button.place(x=650, y=10)
 
-        #Panneau lattéral
-        side_panel = ctk.CTkFrame(self.master, width=200, height=650)
-        side_panel.place(relx=0.8, rely=0)
+        side_panel = ttk.Frame(self.master, width=200, height=650)
+        side_panel.place(x=800, y=0)
 
         self.premiere_classe_var = tk.BooleanVar(master=self.master)
-        premiere_classe_CheckBox = ctk.CTkCheckBox(master=side_panel, variable=self.premiere_classe_var, text="Première classe")
-        premiere_classe_CheckBox.place(relx=0.05, rely=0.015)
+        premiere_classe_CheckBox = ttk.Checkbutton(master=side_panel, variable=self.premiere_classe_var, text="Première classe")
+        premiere_classe_CheckBox.place(x=10, y=10)
 
-        train_types_label = ctk.CTkLabel(master=side_panel, text="Type de train")
-        train_types_label.place(relx=0.05, rely=0.077)
-        self.train_type_var = tk.StringVar(master=self.master)
-        ter_radiobutton = ctk.CTkRadioButton(master=side_panel, text="TER", variable=self.train_type_var, value="TER")
-        ter_radiobutton.place(relx=0.05, rely=0.123)
-        tgv_radiobutton = ctk.CTkRadioButton(master=side_panel, text="TGV", variable=self.train_type_var, value="TGV")
-        tgv_radiobutton.place(relx=0.05, rely=0.169)
-        ouigo_radiobutton = ctk.CTkRadioButton(master=side_panel, text="OUIGO", variable=self.train_type_var, value="OUIGO")
-        ouigo_radiobutton.place(relx=0.05, rely=0.215)
+        train_types_label = ttk.Label(master=side_panel, text="Type de train")
+        train_types_label.place(x=10, y=50)
 
-        
-    def create_widgets_resultat(self):
-        # Remove previous widgets
-        self.map_widget.destroy()
+        self.TER_var = tk.BooleanVar(master=self.master)
+        ter_radiobutton = ttk.Checkbutton(master=side_panel, text="TER", variable=self.TER_var)
+        ter_radiobutton.place(x=10, y=80)
 
-        # Example widget setup
-        resultat_label = ctk.CTkLabel(master=self.master, text="Résultat")
-        resultat_label.place(anchor="center", relx=0.5, rely=0.1)
+        self.TGV_var = tk.BooleanVar(master=self.master)
+        tgv_radiobutton = ttk.Checkbutton(master=side_panel, text="TGV", variable=self.TGV_var)
+        tgv_radiobutton.place(x=10, y=110)
 
-        retour_button = ctk.CTkButton(master=self.master, text="Retour", command=self.create_widgets_home)
-        retour_button.place(relx=0.65, rely=0.015)
+        self.OUIGO_var = tk.BooleanVar(master=self.master)
+        ouigo_radiobutton = ttk.Checkbutton(master=side_panel, text="OUIGO", variable=self.OUIGO_var)
+        ouigo_radiobutton.place(x=10, y=140)
 
-    def on_marker_click(self, marker):
-        print(f"Clicked on {marker.text}")
+    def create_map(self):
+        map_frame = tk.Frame(self.master)
+        m = folium.Map(location=[47.1221, 2.3200], zoom_start=6, control_scale=True)
 
-        if not self.depart_var.get():
-            self.depart_var.set(marker.text)
-        elif not self.arrivee_var.get():
-            self.arrivee_var.set(marker.text)
-        else:
-            self.depart_var.set(marker.text)
-            self.arrivee_var.set("")
+        for gare, coords in self.gares.items():
+            folium.Marker(coords, popup=gare, tooltip=gare).add_to(m)
+
+        data = io.BytesIO()
+        m.save(data, close_file=False)
+        data.seek(0)
+        img = Image.open(data)
+        img.thumbnail((800, 600))
+
+        map_image = ImageTk.PhotoImage(img)
+        map_label = tk.Label(map_frame, image=map_image)
+        map_label.image = map_image
+        map_label.pack()
+
+        return map_frame
 
     def on_calculate_path(self):
         depart_gare = self.depart_var.get()
         arrivee_gare = self.arrivee_var.get()
         print(f"Calculer le trajet entre {depart_gare} et {arrivee_gare}")
-        # ICI SUITE DE L'APPLI
-        # Switch to the example widget setup
-        self.create_widgets_resultat()
+        # You can implement the rest of the app as needed
 
-
-if __name__ == "__main__":
-    root = ctk.CTk()
+if __name__ == "main":
+    root = tk.Tk()
     app = Application(root)
     root.mainloop()

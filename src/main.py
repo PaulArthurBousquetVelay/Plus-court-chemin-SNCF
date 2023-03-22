@@ -29,6 +29,7 @@ class Application:
         for gare, coords in self.gares.items():
             self.map_widget.set_marker(coords[0], coords[1], text=gare, command=self.on_marker_click)
 
+
         depart_label = ctk.CTkLabel(master=self.master, text="Départ:")
         depart_label.place(x=10, y=10)
         self.depart_var = tk.StringVar(master=self.master)
