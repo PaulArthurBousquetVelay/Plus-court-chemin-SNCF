@@ -20,14 +20,16 @@ class Application:
         self.create_widgets_home()
 
     def create_widgets_home(self):
+        #creation de la carte
         self.map_widget = tkintermapview.TkinterMapView(self.master, width=800, height=600, corner_radius=0)
         self.map_widget.place(x=0, y=50)
 
         self.map_widget.set_position(47.1221, 2.3200)  # Center of France
         self.map_widget.set_zoom(6)
 
-        for gare, coords in self.gares.items():
-            self.map_widget.set_marker(coords[0], coords[1], text=gare, command=self.on_marker_click)
+        #creation des marqueurs
+        self.markerlist = []
+        root.bind("<MouseWheel>", lambda x : self.show_markers(self.map_widget.zoom, self.markerlist))
 
 
         depart_label = ctk.CTkLabel(master=self.master, text="Départ:")
@@ -69,11 +71,20 @@ class Application:
         ouigo_radiobutton = ctk.CTkCheckBox(master=side_panel, text="OUIGO", variable=self.OUIGO_var)
         ouigo_radiobutton.place(x=10, y=140)
 
+    def show_markers(self,zoom, markerlist):
+        if zoom < 9:
+            for marker in markerlist:
+                marker.delete()
+        else:     
+            for gare, coords in self.gares.items():
+                markerlist.append(self.map_widget.set_marker(coords[0], coords[1], text=gare, command=self.on_marker_click))
+
+
     def create_widgets_resultat(self):
-        # Remove previous widgets
+        # on detruit la carte pour laisser place au resultat
         self.map_widget.destroy()
 
-        # Example widget setup
+        # On setup le layout resultat
         resultat_label = ctk.CTkLabel(master=self.master, text="Résultat")
         resultat_label.place(anchor="center", relx=0.5, rely=0.1)
 
