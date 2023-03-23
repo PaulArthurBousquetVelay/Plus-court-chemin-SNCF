@@ -1,6 +1,10 @@
+import numpy as np
+
 import customtkinter as ctk
 import tkinter as tk
 import tkintermapview
+
+import processing as pr
 
 class Application:
     def __init__(self, master):
@@ -9,13 +13,8 @@ class Application:
         self.master.title("SNGF CONNEKT")
         ctk.set_appearance_mode("Dark")
 
-        self.gares = {
-            "Paris Gare du Nord": (48.8809, 2.3553),
-            "Paris Gare de Lyon": (48.8448, 2.3741),
-            "Lyon Part-Dieu": (45.7605, 4.8596),
-            "Marseille Saint-Charles": (43.3027, 5.3806),
-            "Bordeaux Saint-Jean": (44.8261, -0.5567),
-        }
+
+        self.gares_TGV = pr.export_gares_TGV(pr.get_gares(), pr.get_TGV())
 
         self.create_widgets_home()
 
@@ -71,13 +70,18 @@ class Application:
         ouigo_radiobutton = ctk.CTkCheckBox(master=side_panel, text="OUIGO", variable=self.OUIGO_var)
         ouigo_radiobutton.place(x=10, y=140)
 
+
+    def delete_marker(self, marker):
+        marker.delete()
+
     def show_markers(self,zoom, markerlist):
         if zoom < 9:
             for marker in markerlist:
-                marker.delete()
+                self.delete_marker(marker)
+            markerlist = []   
         else:     
-            for gare, coords in self.gares.items():
-                markerlist.append(self.map_widget.set_marker(coords[0], coords[1], text=gare, command=self.on_marker_click))
+            for index, row in self.gares_TGV.iterrows():
+                markerlist.append(self.map_widget.set_marker(row['Latitude'], row['Longitude'], text = row['Intitulé plateforme'], command=self.on_marker_click))
 
 
     def create_widgets_resultat(self):
