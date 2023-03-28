@@ -37,7 +37,7 @@ def preprocess(gares_raw, TGV_raw, TER_raw):
     _type_
         _description_
     """
-    gares = gares_raw[['Code UIC', 'Intitulé plateforme', 'Longitude', 'Latitude', 'Segment DRG']]
+    gares = gares_raw[['Code UIC', 'Intitulé plateforme', 'Département', 'Code Commune',  'Longitude', 'Latitude', 'Segment DRG']]
     TGV = TGV_raw[["Transporteur","Gare origine - code UIC","Gare destination - code UIC","Classe","Prix minimum"]]
     TER = TER_raw[["Origine - code UIC","Destination - code UIC", "Libellé tarif", "Prix"]]
     return gares, TGV, TER
@@ -59,3 +59,26 @@ def get_TGV():
 def get_TER():
     gares_raw, TGV, TER_raw = import_raw()
     return preprocess(gares_raw, TGV, TER_raw)[2]
+
+
+def gares_correspondances(gares_raw):
+    gares = gares_raw
+
+    # trouver les doublons sur les variables 'Code postal' et 'Code Commune'
+    duplicates = gares[gares.duplicated(['Département', 'Code Commune'], keep=False)]
+
+
+    duplicates = duplicates.dropna(subset=['Département'])
+    duplicates = duplicates.dropna(subset=['Code Commune'])
+
+    duplicates = duplicates[duplicates['Département'] != '0']
+    duplicates = duplicates.sort_values(by=['Département', 'Code Commune'])
+    return duplicates
+
+
+
+
+print(gares_correspondances(export_gares_TGV(get_gares(), get_TGV())))
+
+
+
